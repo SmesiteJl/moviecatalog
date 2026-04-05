@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>КиноКаталог — Избранное</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body class="bg-dark text-light d-flex flex-column min-vh-100">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container my-4 flex-grow-1">
+    <h2 class="mb-4">Избранное</h2>
+
+    <div th:if="${#lists.isEmpty(favorites)}" class="text-center py-5">
+        <p class="text-muted fs-5">Ваш список избранного пуст.</p>
+        <a th:href="@{/movies}" class="btn btn-warning mt-2">Перейти к каталогу</a>
+    </div>
+
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-3" th:unless="${#lists.isEmpty(favorites)}">
+        <div class="col" th:each="movie : ${favorites}">
+            <a th:href="@{/movie/{id}(id=${movie.tmdbId})}" class="text-decoration-none">
+                <div class="card h-100 bg-secondary border-0 movie-card">
+                    <div class="poster-wrapper">
+                        <img th:if="${movie.posterPath != null}"
+                             th:src="'https://image.tmdb.org/t/p/w342' + ${movie.posterPath}"
+                             class="card-img-top poster-img" alt="Постер">
+                        <div th:unless="${movie.posterPath != null}"
+                             class="no-poster d-flex align-items-center justify-content-center">
+                            <span class="text-muted small">Нет постера</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-2">
+                        <p class="card-title small fw-semibold text-light mb-1 text-truncate"
+                           th:text="${movie.title}">Название</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-warning text-dark"
+                                  th:if="${movie.tmdbRating != null and movie.tmdbRating > 0}"
+                                  th:text="'★ ' + ${#numbers.formatDecimal(movie.tmdbRating, 1, 1)}">★ 7.5</span>
+                            <small class="text-muted"
+                                   th:if="${movie.releaseDate != null}"
+                                   th:text="${#temporals.format(movie.releaseDate, 'yyyy')}">2024</small>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
