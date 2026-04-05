@@ -1,0 +1,164 @@
+/* ============================================
+   КиноКаталог — дополнительные стили
+   ============================================ */
+
+body {
+    background-color: #1a1a2e;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #0f0f1a !important;
+}
+
+/* Hero блок на главной */
+.hero-block {
+    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a3e 50%, #0f0f1a 100%);
+    border: 1px solid #2a2a4e;
+}
+
+/* Карточка фильма */
+.movie-card {
+    background-color: #252540 !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.movie-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* Постер */
+.poster-wrapper {
+    height: 240px;
+    overflow: hidden;
+    background-color: #1a1a2e;
+}
+
+.poster-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.no-poster {
+    height: 240px;
+    background-color: #2a2a3e;
+}
+
+.no-poster-large {
+    width: 100%;
+    aspect-ratio: 2/3;
+    background-color: #2a2a3e;
+    min-height: 300px;
+}
+
+/* Backdrop на странице фильма */
+.backdrop-wrapper {
+    position: relative;
+    max-height: 300px;
+    overflow: hidden;
+}
+
+.backdrop-img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    filter: brightness(0.5);
+}
+
+.backdrop-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to bottom, transparent, #1a1a2e);
+}
+
+/* Аватар пользователя */
+.avatar-circle {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #ffc107, #ff8c00);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #1a1a2e;
+}
+
+/* Формы */
+.form-control:focus,
+.form-select:focus {
+    background-color: #2a2a3e;
+    color: #fff;
+    border-color: #ffc107;
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.15);
+}
+
+/* Таблицы */
+.table-dark {
+    --bs-table-bg: #252540;
+    --bs-table-striped-bg: #1e1e35;
+    --bs-table-hover-bg: #2a2a50;
+    --bs-table-border-color: #3a3a5a;
+}
+
+/* Карточки */
+.card.bg-secondary {
+    background-color: #252540 !important;
+}
+
+/* Пагинация */
+.page-link {
+    background-color: #252540;
+    border-color: #3a3a5a;
+    color: #ccc;
+}
+
+.page-link:hover {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #1a1a2e;
+}
+
+.page-item.active .page-link {
+    background-color: #ffc107 !important;
+    border-color: #ffc107 !important;
+    color: #1a1a2e !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a1a2e;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3a3a5a;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ffc107;
+}
+
+/* Ссылки */
+a.text-warning:hover {
+    color: #ffda6a !important;
+}
+
+/* Список избранного — маленькая обложка */
+.poster-wrapper-small {
+    height: 120px;
+    overflow: hidden;
+}

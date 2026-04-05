@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${movie.title} + ' — КиноКаталог'">Фильм</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body class="bg-dark text-light d-flex flex-column min-vh-100">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container my-4 flex-grow-1">
+
+    <!-- Backdrop -->
+    <div th:if="${movie.backdropPath != null}" class="backdrop-wrapper mb-4 rounded overflow-hidden">
+        <img th:src="'https://image.tmdb.org/t/p/w1280' + ${movie.backdropPath}"
+             class="backdrop-img" alt="Backdrop">
+        <div class="backdrop-overlay"></div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Постер -->
+        <div class="col-md-3">
+            <img th:if="${movie.posterPath != null}"
+                 th:src="'https://image.tmdb.org/t/p/w500' + ${movie.posterPath}"
+                 class="img-fluid rounded shadow" alt="Постер">
+            <div th:unless="${movie.posterPath != null}"
+                 class="no-poster-large d-flex align-items-center justify-content-center rounded">
+                <span class="text-muted">Нет постера</span>
+            </div>
+
+            <!-- Кнопка избранного -->
+            <div sec:authorize="isAuthenticated()" class="mt-3">
+                <form th:action="@{/movie/{id}/favorite(id=${movie.tmdbId})}" method="post">
+                    <button type="submit"
+                            th:class="${isFavorite} ? 'btn btn-warning w-100' : 'btn btn-outline-warning w-100'"
+                            th:text="${isFavorite} ? '★ В избранном' : '☆ В избранное'">
+                        В избранное
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Детали -->
+        <div class="col-md-9">
+            <h1 class="fw-bold" th:text="${movie.title}">Название</h1>
+            <p class="text-muted mb-2" th:if="${movie.originalTitle != null}"
+               th:text="${movie.originalTitle}">Original Title</p>
+
+            <!-- Мета-информация -->
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="badge bg-warning text-dark fs-6"
+                      th:if="${movie.tmdbRating != null and movie.tmdbRating > 0}"
+                      th:text="'★ Оценка TMDB: ' + ${#numbers.formatDecimal(movie.tmdbRating, 1, 1)}">★ 7.5</span>
+                <span class="badge bg-info text-dark fs-6"
+                      th:if="${avgRating != null}"
+                      th:text="'👥 Оценка пользователей: ' + ${avgRating}">👥 8.2</span>
+                <span class="badge bg-secondary"
+                      th:if="${movie.releaseDate != null}"
+                      th:text="${#temporals.format(movie.releaseDate, 'yyyy')}">2024</span>
+            </div>
+
+            <!-- Жанры -->
+            <p th:if="${movie.genres != null and !movie.genres.isEmpty()}">
+                <strong>Жанры:</strong>
+                <span th:text="${movie.genres}"></span>
+            </p>
+
+            <!-- Режиссёр -->
+            <p th:if="${movie.director != null and !movie.director.isEmpty()}">
+                <strong>Режиссёр:</strong>
+                <span th:text="${movie.director}"></span>
+            </p>
+
+            <!-- Актёры -->
+            <p th:if="${movie.castNames != null and !movie.castNames.isEmpty()}">
+                <strong>В главных ролях:</strong>
+                <span th:text="${movie.castNames}"></span>
+            </p>
+
+            <!-- Описание -->
+            <p th:if="${movie.overview != null and !movie.overview.isEmpty()}"
+               class="mt-3 text-light-emphasis" th:text="${movie.overview}">Описание</p>
+
+            <!-- Трейлер -->
+            <div th:if="${movie.trailerKey != null}" class="mt-4">
+                <h5>Трейлер</h5>
+                <div class="ratio ratio-16x9" style="max-width: 640px;">
+                    <iframe th:src="'https://www.youtube.com/embed/' + ${movie.trailerKey}"
+                            title="Трейлер" allowfullscreen
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Отзывы -->
+    <hr class="border-secondary mt-5">
+    <div class="row mt-4">
+        <div class="col-lg-8">
+            <h4>Отзывы (<span th:text="${#lists.size(reviews)}">0</span>)</h4>
+
+            <!-- Форма добавления отзыва -->
+            <div sec:authorize="isAuthenticated()">
+                <div th:unless="${hasReviewed}" class="card bg-secondary border-0 mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title">Оставить отзыв</h6>
+                        <form th:action="@{/movie/{id}/review(id=${movie.tmdbId})}" method="post">
+                            <div class="mb-3">
+                                <label class="form-label">Оценка (1–10)</label>
+                                <select name="rating" class="form-select bg-dark text-light border-secondary" required>
+                                    <option value="" disabled selected>Выберите оценку</option>
+                                    <option th:each="i : ${#numbers.sequence(10, 1, -1)}"
+                                            th:value="${i}" th:text="${i}">10</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Комментарий</label>
+                                <textarea name="comment" class="form-control bg-dark text-light border-secondary"
+                                          rows="3" placeholder="Ваш отзыв..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-warning">Опубликовать</button>
+                        </form>
+                    </div>
+                </div>
+                <div th:if="${hasReviewed}" class="alert alert-secondary mb-4">
+                    Вы уже оставили отзыв на этот фильм.
+                </div>
+            </div>
+
+            <div sec:authorize="!isAuthenticated()" class="alert alert-secondary mb-4">
+                <a th:href="@{/login}" class="text-warning">Войдите</a>, чтобы оставить отзыв.
+            </div>
+
+            <!-- Список отзывов -->
+            <div th:if="${#lists.isEmpty(reviews)}" class="text-muted">
+                Отзывов пока нет. Будьте первым!
+            </div>
+
+            <div th:each="review : ${reviews}" class="card bg-secondary border-0 mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong th:text="${review.user.username}">Пользователь</strong>
+                            <span class="badge bg-warning text-dark ms-2"
+                                  th:text="'★ ' + ${review.rating}">★ 8</span>
+                        </div>
+                        <small class="text-muted"
+                               th:text="${#temporals.format(review.createdAt, 'dd.MM.yyyy')}">01.01.2024</small>
+                    </div>
+                    <p class="mt-2 mb-0 text-light-emphasis"
+                       th:if="${review.comment != null and !review.comment.isEmpty()}"
+                       th:text="${review.comment}">Комментарий</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
