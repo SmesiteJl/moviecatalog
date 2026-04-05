@@ -1,6 +1,6 @@
 # Кинокаталог
 
-**Учебный проект по практике** — веб-сервис с каталогом фильмов
+**Проект по учебной практике** - веб-сервис с каталогом фильмов
 
 ![Java](https://img.shields.io/badge/Java-21-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3-brightgreen)
@@ -56,3 +56,24 @@ mvn clean spring-boot:run
 Пароль: admin123<br>
 
 Обычный пользователь - зарегистрируйтесь на странице "Регистрация"
+
+## Важные замечания
+⚠️ TMDB API работает только через VPN<br>
+Перед запуском приложения обязательно включите VPN.<br>
+В проекте уже настроен HTTP-прокси для всех запросов к TMDB:
+
+- Адрес: 127.0.0.1
+- Порт по умолчанию: 12334
+
+Если ваш VPN использует другой порт, измените его в коде:<br>
+Файл: src/main/java/com/example/moviecatalog/config/**WebConfig.java**<br>
+Найдите метод restTemplate() и поменяйте порт:
+```Java
+@Bean
+public RestTemplate restTemplate() {
+Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 12334)); // ← измените 12334 на ваш порт
+...
+}
+```
+
+После изменения порта перезапустите приложение.
