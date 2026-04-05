@@ -1,24 +1,18 @@
-/* ============================================
-   КиноКаталог — дополнительные стили
-   ============================================ */
-
 body {
     background-color: #1a1a2e;
     font-family: 'Segoe UI', system-ui, sans-serif;
+    color: #ffffff;
 }
 
-/* Navbar */
 .navbar {
     background-color: #0f0f1a !important;
 }
 
-/* Hero блок на главной */
 .hero-block {
     background: linear-gradient(135deg, #0f0f1a 0%, #1a1a3e 50%, #0f0f1a 100%);
     border: 1px solid #2a2a4e;
 }
 
-/* Карточка фильма */
 .movie-card {
     background-color: #252540 !important;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -30,7 +24,6 @@ body {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
 }
 
-/* Постер */
 .poster-wrapper {
     height: 240px;
     overflow: hidden;
@@ -56,7 +49,6 @@ body {
     min-height: 300px;
 }
 
-/* Backdrop на странице фильма */
 .backdrop-wrapper {
     position: relative;
     max-height: 300px;
@@ -79,7 +71,6 @@ body {
     background: linear-gradient(to bottom, transparent, #1a1a2e);
 }
 
-/* Аватар пользователя */
 .avatar-circle {
     width: 64px;
     height: 64px;
@@ -93,16 +84,32 @@ body {
     color: #1a1a2e;
 }
 
-/* Формы */
+.form-label {
+    color: #ffffff !important;
+    font-weight: 500;
+    margin-bottom: 0.35rem;
+}
+
+.form-control,
+.form-select {
+    background-color: #252540 !important;
+    color: #ffffff !important;
+    border-color: #3a3a5a !important;
+}
+
+.form-control::placeholder {
+    color: #aaaaaa !important;
+    opacity: 1;
+}
+
 .form-control:focus,
 .form-select:focus {
-    background-color: #2a2a3e;
-    color: #fff;
-    border-color: #ffc107;
+    background-color: #2a2a3e !important;
+    color: #ffffff !important;
+    border-color: #ffc107 !important;
     box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.15);
 }
 
-/* Таблицы */
 .table-dark {
     --bs-table-bg: #252540;
     --bs-table-striped-bg: #1e1e35;
@@ -110,12 +117,10 @@ body {
     --bs-table-border-color: #3a3a5a;
 }
 
-/* Карточки */
 .card.bg-secondary {
     background-color: #252540 !important;
 }
 
-/* Пагинация */
 .page-link {
     background-color: #252540;
     border-color: #3a3a5a;
@@ -134,7 +139,6 @@ body {
     color: #1a1a2e !important;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar {
     width: 6px;
 }
@@ -152,13 +156,66 @@ body {
     background: #ffc107;
 }
 
-/* Ссылки */
 a.text-warning:hover {
     color: #ffda6a !important;
 }
 
-/* Список избранного — маленькая обложка */
 .poster-wrapper-small {
     height: 120px;
     overflow: hidden;
+}
+
+/* ==================== ИСПРАВЛЕНИЕ ЛИЧНОГО КАБИНЕТА ==================== */
+
+.profile-card label,
+.profile-card .form-label,
+.profile-card strong,
+.profile-card span,
+.profile-card dt,
+.profile-card .text-muted,
+.profile-card h1,
+.profile-card h2,
+.profile-card h3,
+.profile-card h4,
+.profile-card h5,
+.profile-card .card-title,
+.profile-card .username,
+.profile-card .fw-bold,
+.profile-card .display-6,
+.profile-info label,
+.profile-info strong,
+.profile-info span,
+.profile-info .text-muted,
+.profile-info p,
+.card-body label,
+.card-body strong,
+.card-body dt,
+.card-body .text-muted,
+.card-body span,
+.card-body h3,
+.card-body h4,
+.card-body .username {
+    color: #ffffff !important;
+}
+
+.text-muted {
+    color: #d0d0d0 !important;
+}
+
+.profile-card .card-body,
+.profile-info {
+    color: #ffffff;
+}
+
+/* Специально для никнейма пользователя под аватаркой */
+.profile-card .username,
+.profile-card h3,
+.profile-card .card-title,
+.profile-card .fw-bold,
+.card-body > h3,
+.card-body > h4,
+.card-body .text-center h3,
+.profile-card .display-6 {
+    color: #ffffff !important;
+    font-weight: 700;
 }
