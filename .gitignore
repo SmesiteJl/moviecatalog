@@ -135,3 +135,11 @@ buildNumber.properties
 .classpath
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,java,maven
+
+# Local secrets
+.env
+
+# Agent tooling artifacts
+ruvector.db
+agentdb.rvf*
+.playwright-mcp/

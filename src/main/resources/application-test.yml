@@ -1,0 +1,14 @@
+# Integration tests: Testcontainers supplies the datasource, Liquibase builds the schema.
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  thymeleaf:
+    cache: false
+
+tmdb:
+  mode: offline
+
+app:
+  admin:
+    password: test-admin-password

@@ -1,0 +1,122 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-users
+      author: moskalev
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, primaryKeyName: pk_users}}
+              - column: {name: username, type: VARCHAR(50), constraints: {nullable: false, unique: true, uniqueConstraintName: uq_users_username}}
+              - column: {name: password, type: VARCHAR(255), constraints: {nullable: false}}
+              - column: {name: email, type: VARCHAR(100), constraints: {nullable: false, unique: true, uniqueConstraintName: uq_users_email}}
+              - column: {name: role, type: VARCHAR(20), defaultValue: USER}
+              - column: {name: is_blocked, type: BOOLEAN, defaultValueBoolean: false}
+              - column: {name: created_at, type: TIMESTAMP}
+      rollback:
+        - dropTable: {tableName: users}
+
+  - changeSet:
+      id: 002-movies
+      author: moskalev
+      changes:
+        - createTable:
+            tableName: movies
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, primaryKeyName: pk_movies}}
+              - column: {name: tmdb_id, type: BIGINT, constraints: {nullable: false, unique: true, uniqueConstraintName: uq_movies_tmdb_id}}
+              - column: {name: title, type: VARCHAR(255), constraints: {nullable: false}}
+              - column: {name: original_title, type: VARCHAR(255)}
+              - column: {name: overview, type: TEXT}
+              - column: {name: poster_path, type: VARCHAR(255)}
+              - column: {name: backdrop_path, type: VARCHAR(255)}
+              - column: {name: release_date, type: DATE}
+              - column: {name: tmdb_rating, type: DOUBLE PRECISION}
+              - column: {name: genres, type: VARCHAR(500)}
+              - column: {name: director, type: VARCHAR(200)}
+              - column: {name: cast_names, type: VARCHAR(1000)}
+              - column: {name: trailer_key, type: VARCHAR(100)}
+      rollback:
+        - dropTable: {tableName: movies}
+
+  - changeSet:
+      id: 003-reviews
+      author: moskalev
+      changes:
+        - createTable:
+            tableName: reviews
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, primaryKeyName: pk_reviews}}
+              - column: {name: movie_id, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: user_id, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: rating, type: INTEGER, constraints: {nullable: false}}
+              - column: {name: comment, type: TEXT}
+              - column: {name: created_at, type: TIMESTAMP}
+        - addForeignKeyConstraint:
+            constraintName: fk_reviews_movie
+            baseTableName: reviews
+            baseColumnNames: movie_id
+            referencedTableName: movies
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            constraintName: fk_reviews_user
+            baseTableName: reviews
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addUniqueConstraint:
+            constraintName: uq_reviews_movie_user
+            tableName: reviews
+            columnNames: movie_id, user_id
+      rollback:
+        - dropTable: {tableName: reviews}
+
+  - changeSet:
+      id: 004-favorites
+      author: moskalev
+      changes:
+        - createTable:
+            tableName: favorites
+            columns:
+              - column: {name: user_id, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: movie_id, type: BIGINT, constraints: {nullable: false}}
+        - addPrimaryKey:
+            constraintName: pk_favorites
+            tableName: favorites
+            columnNames: user_id, movie_id
+        - addForeignKeyConstraint:
+            constraintName: fk_favorites_user
+            baseTableName: favorites
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            constraintName: fk_favorites_movie
+            baseTableName: favorites
+            baseColumnNames: movie_id
+            referencedTableName: movies
+            referencedColumnNames: id
+            onDelete: CASCADE
+      rollback:
+        - dropTable: {tableName: favorites}
+
+  - changeSet:
+      id: 005-blacklist-movies
+      author: moskalev
+      changes:
+        - createTable:
+            tableName: blacklist_movies
+            columns:
+              - column: {name: movie_id, type: BIGINT, constraints: {primaryKey: true, primaryKeyName: pk_blacklist_movies}}
+        - addForeignKeyConstraint:
+            constraintName: fk_blacklist_movie
+            baseTableName: blacklist_movies
+            baseColumnNames: movie_id
+            referencedTableName: movies
+            referencedColumnNames: id
+            onDelete: CASCADE
+      rollback:
+        - dropTable: {tableName: blacklist_movies}

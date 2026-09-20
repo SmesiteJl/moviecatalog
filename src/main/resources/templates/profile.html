@@ -56,7 +56,7 @@
                         <div class="card bg-secondary border-0 movie-card">
                             <div class="poster-wrapper-small">
                                 <img th:if="${movie.posterPath != null}"
-                                     th:src="'https://image.tmdb.org/t/p/w185' + ${movie.posterPath}"
+                                     th:src="${@posterUrls.url(movie.posterPath, 'w185')}"
                                      class="card-img-top" alt="Постер"
                                      style="height: 120px; object-fit: cover;">
                                 <div th:unless="${movie.posterPath != null}"
