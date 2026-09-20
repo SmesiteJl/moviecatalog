@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-search-indexes
+      author: moskalev
+      comment: Catalogue search filters on these columns; reviews are always read per movie.
+      changes:
+        - createIndex:
+            indexName: idx_movies_title_lower
+            tableName: movies
+            columns:
+              - column: {name: title}
+        - createIndex:
+            indexName: idx_reviews_movie_id
+            tableName: reviews
+            columns:
+              - column: {name: movie_id}
+        - createIndex:
+            indexName: idx_favorites_user_id
+            tableName: favorites
+            columns:
+              - column: {name: user_id}
+      rollback:
+        - dropIndex: {indexName: idx_movies_title_lower, tableName: movies}
+        - dropIndex: {indexName: idx_reviews_movie_id, tableName: reviews}
+        - dropIndex: {indexName: idx_favorites_user_id, tableName: favorites}
