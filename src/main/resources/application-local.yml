@@ -1,0 +1,10 @@
+# Local development profile: run with -Dspring-boot.run.profiles=local
+spring:
+  jpa:
+    show-sql: true
+  thymeleaf:
+    cache: false
+
+logging:
+  level:
+    com.example.moviecatalog: DEBUG
