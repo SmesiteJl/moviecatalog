@@ -1,0 +1,39 @@
+# Starts PostgreSQL and the catalogue. No TMDB key and no network access are required:
+# the application serves its bundled offline catalogue by default.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: moviecatalog
+      POSTGRES_USER: moviecatalog
+      POSTGRES_PASSWORD: moviecatalog
+    ports:
+      # Override if the port is taken: DB_PORT_HOST=5433 docker compose up
+      - "${DB_PORT_HOST:-5432}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U moviecatalog -d moviecatalog"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_NAME: moviecatalog
+      DB_USER: moviecatalog
+      DB_PASSWORD: moviecatalog
+      # Switch to http and add TMDB_API_KEY to use the live TMDB API instead.
+      TMDB_MODE: offline
+      ADMIN_PASSWORD: admin123
+    ports:
+      # Override if the port is taken: APP_PORT=18080 docker compose up
+      - "${APP_PORT:-8080}:8080"
+
+volumes:
+  db-data:
