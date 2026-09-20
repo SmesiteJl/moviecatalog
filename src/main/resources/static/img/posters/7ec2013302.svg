@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 342 513" width="342" height="513" role="img" aria-label="Властелин колец: Возвращение короля">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#14532d"/><stop offset="100%" stop-color="#052e16"/></linearGradient></defs>
+  <rect width="342" height="513" fill="url(#g)"/>
+  <rect x="16" y="16" width="310" height="481" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2" rx="8"/>
+  <text x="171" y="155" fill="#ffffff" font-family="Georgia, serif" font-size="26" font-weight="bold" text-anchor="middle"><tspan x="171" dy="0">Властелин</tspan><tspan x="171" dy="30">колец:</tspan><tspan x="171" dy="30">Возвращение</tspan><tspan x="171" dy="30">короля</tspan></text>
+  <text x="171" y="225" fill="#ffffff" fill-opacity="0.72" font-family="Georgia, serif" font-size="17" font-style="italic" text-anchor="middle">The Lord of the Rings: The Ret</text>
+  <text x="171" y="440" fill="#ffffff" fill-opacity="0.85" font-family="Helvetica, Arial, sans-serif" font-size="20" text-anchor="middle">2003  ·  ★ 8.5</text>
+</svg>

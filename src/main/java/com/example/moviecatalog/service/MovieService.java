@@ -5,14 +5,11 @@ import com.example.moviecatalog.entity.BlacklistMovie;
 import com.example.moviecatalog.entity.Movie;
 import com.example.moviecatalog.repository.BlacklistMovieRepository;
 import com.example.moviecatalog.repository.MovieRepository;
+import com.example.moviecatalog.client.TmdbClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,13 +21,7 @@ public class MovieService {
 
     private final MovieRepository movieRepository;
     private final BlacklistMovieRepository blacklistMovieRepository;
-    private final RestTemplate restTemplate;
-
-    @Value("${tmdb.api.key}")
-    private String apiKey;
-
-    @Value("${tmdb.api.base-url}")
-    private String baseUrl;
+    private final TmdbClient tmdbClient;
 
     private static final Map<Integer, String> GENRE_MAP = Map.ofEntries(
             Map.entry(28, "Боевик"),
@@ -61,13 +52,7 @@ public class MovieService {
     );
 
     public TmdbMovieListResponse getPopularMoviesPage(int page) {
-        try {
-            String url = baseUrl + "/movie/popular?api_key=" + apiKey + "&language=ru-RU&page=" + page;
-            return restTemplate.getForObject(url, TmdbMovieListResponse.class);
-        } catch (Exception e) {
-            log.error("Ошибка при получении популярных фильмов: {}", e.getMessage());
-            return new TmdbMovieListResponse();
-        }
+        return tmdbClient.popular(page);
     }
 
     public List<TmdbMovieResponse> getPopularMovies() {
@@ -76,15 +61,7 @@ public class MovieService {
     }
 
     public List<TmdbMovieResponse> searchByTitle(String query) {
-        try {
-            String encoded = URLEncoder.encode(query, StandardCharsets.UTF_8);
-            String url = baseUrl + "/search/movie?api_key=" + apiKey + "&language=ru-RU&query=" + encoded;
-            TmdbMovieListResponse resp = restTemplate.getForObject(url, TmdbMovieListResponse.class);
-            return resp != null && resp.getResults() != null ? resp.getResults() : List.of();
-        } catch (Exception e) {
-            log.error("Ошибка при поиске фильмов: {}", e.getMessage());
-            return List.of();
-        }
+        return tmdbClient.searchByTitle(query);
     }
 
     public Movie getOrFetchMovie(Long tmdbId) {
@@ -94,17 +71,15 @@ public class MovieService {
 
     private Movie fetchAndSaveMovie(Long tmdbId) {
         try {
-            String detailUrl = baseUrl + "/movie/" + tmdbId + "?api_key=" + apiKey + "&language=ru-RU";
-            TmdbMovieDetail detail = restTemplate.getForObject(detailUrl, TmdbMovieDetail.class);
+            TmdbMovieDetail detail = tmdbClient.movieDetail(tmdbId);
             if (detail == null || detail.getId() == null) return null;
 
-            String creditsUrl = baseUrl + "/movie/" + tmdbId + "/credits?api_key=" + apiKey + "&language=ru-RU";
-            TmdbCreditsResponse credits = restTemplate.getForObject(creditsUrl, TmdbCreditsResponse.class);
+            TmdbCreditsResponse credits = tmdbClient.credits(tmdbId);
 
-            // Пробуем русские видео, затем английские
-            String trailerKey = fetchTrailerKey(tmdbId, "ru-RU");
+            // Prefer a Russian trailer, fall back to the English one.
+            String trailerKey = tmdbClient.trailerKey(tmdbId, "ru-RU");
             if (trailerKey == null) {
-                trailerKey = fetchTrailerKey(tmdbId, "en-US");
+                trailerKey = tmdbClient.trailerKey(tmdbId, "en-US");
             }
 
             Movie movie = new Movie();
@@ -150,26 +125,11 @@ public class MovieService {
 
             return movieRepository.save(movie);
         } catch (Exception e) {
-            log.error("Ошибка при получении деталей фильма {}: {}", tmdbId, e.getMessage());
+            log.error("Failed to assemble movie {}: {}", tmdbId, e.getMessage());
             return null;
         }
     }
 
-    private String fetchTrailerKey(Long tmdbId, String language) {
-        try {
-            String url = baseUrl + "/movie/" + tmdbId + "/videos?api_key=" + apiKey + "&language=" + language;
-            TmdbVideosResponse videos = restTemplate.getForObject(url, TmdbVideosResponse.class);
-            if (videos != null && videos.getResults() != null) {
-                return videos.getResults().stream()
-                        .filter(v -> "YouTube".equals(v.getSite()) && "Trailer".equals(v.getType()))
-                        .map(TmdbVideo::getKey)
-                        .findFirst().orElse(null);
-            }
-        } catch (Exception e) {
-            log.warn("Не удалось получить трейлер для фильма {} ({}): {}", tmdbId, language, e.getMessage());
-        }
-        return null;
-    }
 
     public Set<Long> getBlacklistedTmdbIds() {
         try {

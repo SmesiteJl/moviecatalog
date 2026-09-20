@@ -16,7 +16,7 @@
 
     <!-- Backdrop -->
     <div th:if="${movie.backdropPath != null}" class="backdrop-wrapper mb-4 rounded overflow-hidden">
-        <img th:src="'https://image.tmdb.org/t/p/w1280' + ${movie.backdropPath}"
+        <img th:src="${@posterUrls.url(movie.backdropPath, 'w1280')}"
              class="backdrop-img" alt="Backdrop">
         <div class="backdrop-overlay"></div>
     </div>
@@ -25,7 +25,7 @@
         <!-- Постер -->
         <div class="col-md-3">
             <img th:if="${movie.posterPath != null}"
-                 th:src="'https://image.tmdb.org/t/p/w500' + ${movie.posterPath}"
+                 th:src="${@posterUrls.url(movie.posterPath, 'w500')}"
                  class="img-fluid rounded shadow" alt="Постер">
             <div th:unless="${movie.posterPath != null}"
                  class="no-poster-large d-flex align-items-center justify-content-center rounded">
