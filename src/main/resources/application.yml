@@ -1,23 +1,54 @@
 spring:
+  application:
+    name: moviecatalog
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/moviecatalog
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:moviecatalog}
+    username: ${DB_USER:moviecatalog}
+    password: ${DB_PASSWORD:moviecatalog}
+
   jpa:
     hibernate:
-      ddl-auto: update
+      # Never let Hibernate touch the schema: Liquibase owns it.
+      ddl-auto: validate
+    open-in-view: false
     show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
   thymeleaf:
-    cache: false
+    cache: true
 
 tmdb:
+  # offline -> serve the bundled catalogue, no network and no API key required.
+  # http    -> call the real TMDB API (needs TMDB_API_KEY).
+  mode: ${TMDB_MODE:offline}
   api:
-    key: 3c9b4a42d8160fe76b2370ad494749b4
-    base-url: https://api.themoviedb.org/3
-  image-base-url: https://image.tmdb.org/t/p
+    key: ${TMDB_API_KEY:}
+    base-url: ${TMDB_BASE_URL:https://api.themoviedb.org/3}
+  image-base-url: ${TMDB_IMAGE_BASE_URL:https://image.tmdb.org/t/p}
+  proxy:
+    # TMDB is unreachable from some networks; enable to route calls through a local proxy.
+    enabled: ${TMDB_PROXY_ENABLED:false}
+    host: ${TMDB_PROXY_HOST:127.0.0.1}
+    port: ${TMDB_PROXY_PORT:12334}
+  timeout:
+    connect-ms: ${TMDB_CONNECT_TIMEOUT_MS:10000}
+    read-ms: ${TMDB_READ_TIMEOUT_MS:15000}
+
+app:
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    email: ${ADMIN_EMAIL:admin@moviecatalog.local}
+    password: ${ADMIN_PASSWORD:admin123}
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
+
+logging:
+  level:
+    com.example.moviecatalog: INFO
