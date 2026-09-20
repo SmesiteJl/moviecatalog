@@ -81,7 +81,7 @@
                     <div class="card h-100 bg-secondary border-0 movie-card">
                         <div class="poster-wrapper">
                             <img th:if="${movie.posterPath != null}"
-                                 th:src="'https://image.tmdb.org/t/p/w342' + ${movie.posterPath}"
+                                 th:src="${@posterUrls.url(movie.posterPath, 'w342')}"
                                  class="card-img-top poster-img" alt="Постер">
                             <div th:unless="${movie.posterPath != null}"
                                  class="no-poster d-flex align-items-center justify-content-center">
@@ -120,7 +120,7 @@
                     <div class="card h-100 bg-secondary border-0 movie-card">
                         <div class="poster-wrapper">
                             <img th:if="${movie.posterPath != null}"
-                                 th:src="'https://image.tmdb.org/t/p/w342' + ${movie.posterPath}"
+                                 th:src="${@posterUrls.url(movie.posterPath, 'w342')}"
                                  class="card-img-top poster-img" alt="Постер">
                             <div th:unless="${movie.posterPath != null}"
                                  class="no-poster d-flex align-items-center justify-content-center">
