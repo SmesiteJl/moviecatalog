@@ -1,79 +1,115 @@
-# Кинокаталог
+# Movie Catalogue
 
-**Проект по учебной практике** - веб-сервис с каталогом фильмов
+A server-rendered movie catalogue: browse, search, review and curate films, with an admin panel
+for moderation. Built as a university practice project and since hardened into something that
+runs anywhere with one command.
 
-![Java](https://img.shields.io/badge/Java-21-orange)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3-brightgreen)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)
-![Thymeleaf](https://img.shields.io/badge/Thymeleaf-3.1-green)
+<p align="center">
+  <img src="docs/screenshots/home.png" alt="Catalogue home page" width="100%">
+</p>
 
-## О проекте
+![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3-6DB33F?logo=springboot&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![Liquibase](https://img.shields.io/badge/Liquibase-2962FF?logo=liquibase&logoColor=white)
+![Testcontainers](https://img.shields.io/badge/Testcontainers-291A3F?logo=docker&logoColor=white)
+[![CI](https://github.com/SmesiteJl/moviecatalog/actions/workflows/ci.yml/badge.svg)](https://github.com/SmesiteJl/moviecatalog/actions/workflows/ci.yml)
 
-Каталог фильмов с интеграцией TMDB API.  
+## Run it
 
-
-### Основной функционал
-- Просмотр популярных фильмов
-- Поиск по названию, жанру, актёрам и режиссёру
-- Детальная страница фильма (постер, трейлер YouTube, рейтинг TMDB, описание)
-- Регистрация и авторизация пользователей
-- Личный кабинет
-- Добавление фильмов в «Избранное»
-- Отзывы и оценки (свои + средний рейтинг)
-- Админ-панель (блокировка пользователей, удаление отзывов, blacklist фильмов)
-
-## Технологический стек
-
-- **Backend**: Java 21 + Spring Boot 3.3
-- **Шаблонизатор**: Thymeleaf (Server-Side Rendering)
-- **Frontend**: Bootstrap 5 + vanilla JavaScript
-- **База данных**: PostgreSQL + Spring Data JPA + Hibernate
-- **Безопасность**: Spring Security (form-login)
-- **Внешнее API**: TMDB API v3
-
-## Инструкции для запуска 
-
-### 1. Создание базы данных PostgreSQL
-
-Выполните команды (в pgAdmin, psql или IntelliJ Database Console):
-
-```sql
-CREATE DATABASE moviecatalog;
-
-CREATE USER movieuser WITH PASSWORD 'moviepass';
-
-GRANT ALL PRIVILEGES ON DATABASE moviecatalog TO movieuser;
-```
-### 2. Запуск проекта
 ```bash
-mvn clean spring-boot:run
-```
-Приложение будет доступно по адресу: http://localhost:8080
-
-### Учётные данные
-Администратор:
-Логин: admin <br>
-Пароль: admin123<br>
-
-Обычный пользователь - зарегистрируйтесь на странице "Регистрация"
-
-## Важные замечания
-⚠️ TMDB API работает только через VPN<br>
-Перед запуском приложения обязательно включите VPN.<br>
-В проекте уже настроен HTTP-прокси для всех запросов к TMDB:
-
-- Адрес: 127.0.0.1
-- Порт по умолчанию: 12334
-
-Если ваш VPN использует другой порт, измените его в коде:<br>
-Файл: src/main/java/com/example/moviecatalog/config/**WebConfig.java**<br>
-Найдите метод restTemplate() и поменяйте порт:
-```Java
-@Bean
-public RestTemplate restTemplate() {
-Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 12334)); // ← измените 12334 на ваш порт
-...
-}
+docker compose up --build
 ```
 
-После изменения порта перезапустите приложение.
+Open <http://localhost:8080>. That is the whole setup — **no API key, no VPN, no database to create**.
+The application ships with a bundled catalogue of 20 films and serves its own artwork, so a
+reviewer sees a fully working site on a fresh clone.
+
+Sign in as `admin` / `admin123` to reach the admin panel, or register a normal account.
+
+> The demo administrator password is intentionally printed as a warning at startup. Set
+> `ADMIN_PASSWORD` for any instance other people can reach.
+
+### Using the live TMDB API instead
+
+```bash
+TMDB_MODE=http TMDB_API_KEY=<your key> docker compose up --build
+```
+
+If TMDB is unreachable from your network, set `TMDB_PROXY_ENABLED=true` with
+`TMDB_PROXY_HOST` / `TMDB_PROXY_PORT`. See [.env.example](.env.example) for every setting.
+
+## What it does
+
+| | |
+| :--- | :--- |
+| **Catalogue** | Popular films, paginated; search by title, genre, actor or director |
+| **Film page** | Poster, synopsis, rating, genres, cast, director, YouTube trailer when available |
+| **Accounts** | Registration and form login on Spring Security, BCrypt-hashed passwords |
+| **Personal** | Favourites and a personal profile |
+| **Reviews** | One review per user per film, with an aggregate score |
+| **Moderation** | Admin panel: block users, delete reviews, blacklist films |
+
+<p align="center">
+  <img src="docs/screenshots/movie.png" alt="Film page" width="100%">
+  <sub>Both screenshots are the default offline mode — no TMDB key, no network.</sub>
+</p>
+
+## How it is put together
+
+Layered Spring MVC — controllers, services, Spring Data JPA repositories — rendered with Thymeleaf.
+Two decisions are worth calling out:
+
+**The movie source sits behind an interface.** `TmdbClient` has two implementations: `HttpTmdbClient`
+calls the real TMDB API, `OfflineTmdbClient` serves a catalogue bundled into the jar. `MovieService`
+cannot tell them apart. That seam is what lets the application boot with no credentials, and it is
+also what makes the service layer testable without stubbing HTTP.
+
+**Liquibase owns the schema, Hibernate only checks it.** `ddl-auto` is `validate`, never `update`, so
+the schema can never drift silently at someone else's startup. `SchemaMigrationTest` starts the full
+context against a real PostgreSQL: if a changelog and an entity disagree, the build fails rather
+than the deployment.
+
+```
+src/main/java/com/example/moviecatalog/
+├── client/      TmdbClient + HTTP and offline implementations
+├── config/      Security, TMDB properties and wiring
+├── controller/  Home, movies, search, auth, profile, admin
+├── dto/         TMDB payloads
+├── entity/      User, Movie, Review, Favorite, BlacklistMovie
+├── repository/  Spring Data JPA
+├── service/     Catalogue, favourites, reviews, users, moderation
+└── web/         Artwork URL resolution
+```
+
+## Tests
+
+```bash
+mvn verify
+```
+
+47 tests. Unit tests cover the offline catalogue, the service layer (Mockito) and artwork URL
+building. Integration tests run against **PostgreSQL 16 in Testcontainers** and cover the Liquibase
+schema contract, the hand-written JPQL behind search, and the access rules separating guests, users
+and administrators.
+
+Requires Java 21 and a running Docker daemon. Build on JDK 21 specifically — no current Lombok
+release supports JDK 26, and a failing Lombok processor shows up as hundreds of misleading
+`cannot find symbol` errors in files you never touched.
+
+## Configuration
+
+Every setting has a working default; see [.env.example](.env.example).
+
+| Variable | Default | Purpose |
+| :--- | :--- | :--- |
+| `TMDB_MODE` | `offline` | `offline` uses the bundled catalogue, `http` calls TMDB |
+| `TMDB_API_KEY` | — | Required only when `TMDB_MODE=http` |
+| `TMDB_PROXY_ENABLED` | `false` | Route TMDB calls through an HTTP proxy |
+| `DB_HOST` / `DB_PORT` / `DB_NAME` | `localhost` / `5432` / `moviecatalog` | Database location |
+| `DB_USER` / `DB_PASSWORD` | `moviecatalog` | Database credentials |
+| `ADMIN_USERNAME` / `ADMIN_PASSWORD` | `admin` / `admin123` | Seeded administrator |
+
+## Licence
+
+[MIT](LICENSE)
